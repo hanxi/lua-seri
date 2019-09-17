@@ -1,4 +1,3 @@
-local loadstring = loadstring or load
 local gsub = string.gsub
 local match = string.match
 
@@ -21,8 +20,8 @@ local function append_result(result, ...)
     end
 end
 
-local function val_to_str(vtype, v, result)
-    if vtype == "string" then
+local support_value_type = {
+    string = function (vtype, v, result)
         v = gsub(v, "\n", "\\n")
         if match(gsub(v, "[^'\"]", ""), '^"+$') then
             append_result(result, "'")
@@ -34,10 +33,20 @@ local function val_to_str(vtype, v, result)
             append_result(result, v)
             append_result(result, '"')
         end
-    elseif vtype == "table" then
-        tbl_to_str(v, result)
-    else
+    end,
+    number = function (vtype, v, result)
         append_result(result, tostring(v))
+    end,
+    table = function (vtype, v, result)
+        tbl_to_str(v, result)
+    end,
+}
+local function val_to_str(vtype, v, result)
+    local func = support_value_type[vtype]
+    if func then
+        func(vtype, v, result)
+    else
+        append_result(result, "nil")
     end
 end
 
@@ -55,13 +64,6 @@ local support_key_type = {
     string = true,
     number = true,
 }
-
-local support_value_type = {
-    string = true,
-    number = true,
-    table = true,
-}
-
 tbl_to_str = function (tbl, result)
     append_result(result, "{")
     local is_first_ele = true
@@ -100,10 +102,6 @@ _M.encode = function(...)
     end
     ret.i = nil
     return table.concat(ret, "")
-end
-
-_M.decode = function(str)
-    return loadstring("return " .. str)()
 end
 
 return _M
