@@ -14,9 +14,12 @@ local t1 = {
 }
 
 seri.limit(4000)
-local str = seri.encode(t1, 2, 3, "a", nil, "b", function () end)
+for i=1,10000 do
+str = seri.encode(t1, 2, 3, "a", nil, "b", function () end)
+end
 print(str)
 
 local t2,a,b,c,d,e,f = seri.decode(str)
 print(t2,a,b,c,d,e,f)
+
 
