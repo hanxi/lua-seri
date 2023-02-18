@@ -12,6 +12,7 @@ local t1 = {
     h = {1,2,3,4,5,6},
     i = function () end,
 }
+t1.x = string.rep("x", 100, "|")
 
 seri.limit(4000)
 for i=1,10000 do
